@@ -38,6 +38,7 @@
     // TypeScirpt なので prop-types は要らない
     "react/prop-types": "off",
     // ! no-non-null-assertionの警告を消す
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }

@@ -5,9 +5,6 @@ import {
   Button,
   CssBaseline,
   TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
   Paper,
   Grid,
   Box,
@@ -16,10 +13,8 @@ import {
 } from '@material-ui/core'
 import {
   AccountCircleOutlined,
-  CameraOutlined,
   EmailOutlined,
   LockOutlined,
-  SendOutlined,
 } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/core/styles'
 import styles from './Auth.module.css'
@@ -206,6 +201,11 @@ const Auth: React.FC = () => {
               }
             />
             <Button
+              disabled={
+                isLogin
+                  ? !email || password.length < 6
+                  : !username || !email || password.length < 6 || !avatarImage
+              }
               fullWidth
               variant="contained"
               color="primary"
