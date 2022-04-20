@@ -12,6 +12,7 @@ import {
   Grid,
   Box,
   Typography,
+  IconButton,
 } from '@material-ui/core'
 import {
   AccountCircleOutlined,
@@ -77,7 +78,6 @@ const Auth: React.FC = () => {
     try {
       await auth.signInWithEmailAndPassword(email, password)
     } catch (err: any) {
-      console.log(err)
       alert(err.message)
     }
   }
@@ -98,7 +98,7 @@ const Auth: React.FC = () => {
         )
           .map((n) => S[n % S.length])
           .join('')
-        const fileName = `${randomChar}_${avatarImage.name}`
+        const fileName = `${randomChar}_${avatarImage.name}` // avatarImage(Fileデータ)のnameプロパティはアップロードした画像ファイル名
         await storage.ref(`avatars/${fileName}`).put(avatarImage)
         url = await storage.ref('avatars').child(fileName).getDownloadURL()
       }
@@ -113,7 +113,6 @@ const Auth: React.FC = () => {
         })
       )
     } catch (err: any) {
-      console.log(err)
       alert(err.message)
     }
   }
@@ -138,6 +137,44 @@ const Auth: React.FC = () => {
             {isLogin ? 'Login' : 'Register'}
           </Typography>
           <form className={classes.form} noValidate>
+            {!isLogin && (
+              <>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={username}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setUsername(e.target.value)
+                  }}
+                />
+                <Box textAlign="center">
+                  <IconButton>
+                    <label>
+                      <AccountCircleOutlined
+                        fontSize="large"
+                        className={
+                          avatarImage
+                            ? styles.login_addIconLoaded
+                            : styles.login_addIcon
+                        }
+                      />
+                      <input
+                        className={styles.login_hiddenIcon}
+                        type="file"
+                        onChange={onChangeImageHandler}
+                      />
+                    </label>
+                  </IconButton>
+                </Box>
+              </>
+            )}
             <TextField
               variant="outlined"
               margin="normal"
