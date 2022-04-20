@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { login, logout, selectUser } from './features/user/userSlice'
 import { auth } from './firebase'
 import styles from './App.module.css'
+import Feed from './components/Feed'
+import Auth from './components/Auth'
 
 const App: React.FC = () => {
   const user = useSelector(selectUser)
@@ -26,7 +28,17 @@ const App: React.FC = () => {
     return () => unSub()
   }, [dispatch])
 
-  return <div className={styles.app}></div>
+  return (
+    <>
+      {user.uid ? (
+        <div className={styles.app}>
+          <Feed />
+        </div>
+      ) : (
+        <Auth />
+      )}
+    </>
+  )
 }
 
 export default App
