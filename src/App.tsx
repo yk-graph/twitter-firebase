@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Counter } from './features/counter/Counter'
 import './App.css'
+import CleanUp from './CleanUp'
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<string | number>('tset')
   const [input, setInput] = useState('')
   const [counter, setCounter] = useState(0)
+  const [display, setDisplay] = useState(true)
 
   useEffect(() => {
     console.log('Appコンポーネント呼ばれたで!')
-  }, [counter])
+  }, [])
+
+  const onCloseDisplay = useCallback(() => setDisplay(false), [])
 
   return (
     <div className="App">
@@ -27,6 +31,8 @@ const App: React.FC = () => {
         <button onClick={() => setCounter((preCounter) => preCounter + 1)}>
           add
         </button>
+        {display && <CleanUp onCloseDisplay={onCloseDisplay} />}
+        <button onClick={() => setDisplay(!display)}>Open Display</button>
         <hr />
         <Counter />
       </header>
