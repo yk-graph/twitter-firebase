@@ -24,6 +24,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import styles from './Auth.module.css'
 
 import { auth, provider, storage } from '../firebase'
+import { updateUserProfile } from '../features/user/userSlice'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,11 +60,14 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Auth: React.FC = () => {
+  const dispatch = useDispatch()
   const classes = useStyles()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLogin, setIsLogin] = useState(true)
+  const [username, setUsername] = useState('')
+  const [avatarImage, setAvatarImage] = useState<File | null>(null)
 
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((err) => alert(err.message))
@@ -80,10 +84,44 @@ const Auth: React.FC = () => {
 
   const signUpEmail = async () => {
     try {
-      await auth.createUserWithEmailAndPassword(email, password)
+      const authUser = await auth.createUserWithEmailAndPassword(
+        email,
+        password
+      )
+      let url = ''
+      if (avatarImage) {
+        const S =
+          'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        const N = 16
+        const randomChar = Array.from(
+          crypto.getRandomValues(new Uint32Array(N))
+        )
+          .map((n) => S[n % S.length])
+          .join('')
+        const fileName = `${randomChar}_${avatarImage.name}`
+        await storage.ref(`avatars/${fileName}`).put(avatarImage)
+        url = await storage.ref('avatars').child(fileName).getDownloadURL()
+      }
+      await authUser.user?.updateProfile({
+        displayName: username,
+        photoURL: url,
+      })
+      dispatch(
+        updateUserProfile({
+          displayName: username,
+          photoUrl: url,
+        })
+      )
     } catch (err: any) {
       console.log(err)
       alert(err.message)
+    }
+  }
+
+  const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0])
+      e.target.value = ''
     }
   }
 
@@ -144,7 +182,7 @@ const Auth: React.FC = () => {
               <Grid item xs>
                 <span className={styles.login_reset}>Foeget Password?</span>
               </Grid>
-              <Grid item xs>
+              <Grid item>
                 <span
                   className={styles.login_toggleMode}
                   onClick={() => setIsLogin(!isLogin)}
