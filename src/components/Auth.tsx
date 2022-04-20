@@ -5,6 +5,7 @@ import {
   Button,
   CssBaseline,
   TextField,
+  Modal,
   Paper,
   Grid,
   Box,
@@ -13,8 +14,10 @@ import {
 } from '@material-ui/core'
 import {
   AccountCircleOutlined,
+  CameraOutlined,
   EmailOutlined,
   LockOutlined,
+  SendOutlined,
 } from '@material-ui/icons'
 import { makeStyles } from '@material-ui/core/styles'
 import styles from './Auth.module.css'
@@ -22,12 +25,32 @@ import styles from './Auth.module.css'
 import { auth, provider, storage } from '../firebase'
 import { updateUserProfile } from '../features/user/userSlice'
 
+function getModalStyle() {
+  const top = 50
+  const left = 50
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  }
+}
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
   },
+  modal: {
+    outline: 'none',
+    position: 'absolute',
+    width: 400,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(10),
+  },
   image: {
-    backgroundImage: 'url(https://source.unsplash.com/random)',
+    backgroundImage:
+      'url(https://images.unsplash.com/photo-1581784368651-8916092072cf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=934&q=80)',
     backgroundRepeat: 'no-repeat',
     backgroundColor:
       theme.palette.type === 'light'
@@ -47,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '100%',
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -64,6 +87,8 @@ const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState('')
   const [avatarImage, setAvatarImage] = useState<File | null>(null)
+  const [openModal, setOpenModal] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
 
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((err) => alert(err.message))
@@ -110,6 +135,19 @@ const Auth: React.FC = () => {
     } catch (err: any) {
       alert(err.message)
     }
+  }
+
+  const sendResetEmail = async () => {
+    await auth
+      .sendPasswordResetEmail(resetEmail)
+      .then(() => {
+        setOpenModal(false)
+        setResetEmail('')
+      })
+      .catch((err) => {
+        alert(err.message)
+        setResetEmail('')
+      })
   }
 
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,7 +255,12 @@ const Auth: React.FC = () => {
             </Button>
             <Grid container>
               <Grid item xs>
-                <span className={styles.login_reset}>Foeget Password?</span>
+                <span
+                  className={styles.login_reset}
+                  onClick={() => setOpenModal(true)}
+                >
+                  Foeget Password?
+                </span>
               </Grid>
               <Grid item>
                 <span
@@ -234,10 +277,33 @@ const Auth: React.FC = () => {
               color="primary"
               onClick={signInGoogle}
               className={classes.submit}
+              startIcon={<CameraOutlined />}
             >
               SignIn with Google
             </Button>
           </form>
+
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
+            <div style={getModalStyle()} className={classes.modal}>
+              <div className={styles.login_modal}>
+                <TextField
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  type="email"
+                  name="email"
+                  label="Reset E-mail"
+                  value={resetEmail}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setResetEmail(e.target.value)
+                  }}
+                />
+                <IconButton onClick={sendResetEmail}>
+                  <SendOutlined />
+                </IconButton>
+              </div>
+            </div>
+          </Modal>
         </div>
       </Grid>
     </Grid>
