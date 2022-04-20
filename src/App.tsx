@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { login, logout, selectUser } from './features/user/userSlice'
 import { auth } from './firebase'
-import styles from './App.module.css'
 import Feed from './components/Feed'
 import Auth from './components/Auth'
+import styles from './App.module.css'
 
 const App: React.FC = () => {
   const user = useSelector(selectUser)
