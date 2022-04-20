@@ -20,8 +20,8 @@ import {
   LockOutlined,
   SendOutlined,
 } from '@material-ui/icons'
-
 import { makeStyles } from '@material-ui/core/styles'
+import styles from './Auth.module.css'
 
 import { auth, provider, storage } from '../firebase'
 
@@ -61,10 +61,30 @@ const useStyles = makeStyles((theme) => ({
 const Auth: React.FC = () => {
   const classes = useStyles()
 
-  const signInGoogle = async () => {
-    console.log(auth)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
 
+  const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((err) => alert(err.message))
+  }
+
+  const signInEmail = async () => {
+    try {
+      await auth.signInWithEmailAndPassword(email, password)
+    } catch (err: any) {
+      console.log(err)
+      alert(err.message)
+    }
+  }
+
+  const signUpEmail = async () => {
+    try {
+      await auth.createUserWithEmailAndPassword(email, password)
+    } catch (err: any) {
+      console.log(err)
+      alert(err.message)
+    }
   }
 
   return (
@@ -77,7 +97,7 @@ const Auth: React.FC = () => {
             <LockOutlined />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            {isLogin ? 'Login' : 'Register'}
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -90,6 +110,10 @@ const Auth: React.FC = () => {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
             />
             <TextField
               variant="outlined"
@@ -101,15 +125,34 @@ const Auth: React.FC = () => {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
             />
             <Button
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              startIcon={<EmailOutlined />}
+              onClick={isLogin ? signInEmail : signUpEmail}
             >
-              Sign In
+              {isLogin ? 'Login' : 'Register'}
             </Button>
+            <Grid container>
+              <Grid item xs>
+                <span className={styles.login_reset}>Foeget Password?</span>
+              </Grid>
+              <Grid item xs>
+                <span
+                  className={styles.login_toggleMode}
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? 'Create New Account' : 'Back to Login'}
+                </span>
+              </Grid>
+            </Grid>
             <Button
               fullWidth
               variant="contained"
