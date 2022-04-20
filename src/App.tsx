@@ -1,55 +1,34 @@
-import React from 'react'
-import logo from './logo.svg'
+import React, { useEffect, useState } from 'react'
 import { Counter } from './features/counter/Counter'
 import './App.css'
 
 const App: React.FC = () => {
+  const [status, setStatus] = useState<string | number>('tset')
+  const [input, setInput] = useState('')
+  const [counter, setCounter] = useState(0)
+
+  useEffect(() => {
+    console.log('Appコンポーネント呼ばれたで!')
+  }, [counter])
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <h4>{status}</h4>
+        <button onClick={() => setStatus(1)}>Button</button>
+        <h4>{input}</h4>
+        <input
+          type="text"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setInput(e.target.value)
+          }
+        />
+        <h4>{counter}</h4>
+        <button onClick={() => setCounter((preCounter) => preCounter + 1)}>
+          add
+        </button>
+        <hr />
         <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
       </header>
     </div>
   )
