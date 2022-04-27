@@ -18,7 +18,7 @@ export const userSlice = createSlice({
      *@description ログアウト処理が通った場合、グローバルステートを初期化する関数
      *@payload {uid: string, photoUrl: string, displayName: string}
      */
-    logout: (state, action) => {
+    logout: (state) => {
       state.user = { uid: "", photoUrl: "", displayName: "" };
     },
   },
@@ -26,6 +26,6 @@ export const userSlice = createSlice({
 
 export const { login, logout } = userSlice.actions;
 
-export const selectUser = (state: RootState) => state.user;
+export const selectUser = (state: RootState) => state.user.user;
 
 export default userSlice.reducer;
