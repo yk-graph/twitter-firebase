@@ -70,11 +70,10 @@ const Auth: React.FC = () => {
 
   const signUpEmail = async () => {
     let avatarUrlPath = "";
-
     const authUser = await auth
       .createUserWithEmailAndPassword(email, password)
       .catch((error) => alert(error.message));
-
+    // アバター画像が選択されていたらfireStorageに画像を格納する
     if (avatarImage) {
       await storage.ref(`avatars/${avatarImageFileName}`).put(avatarImage);
       avatarUrlPath = await storage
@@ -82,19 +81,19 @@ const Auth: React.FC = () => {
         .child(avatarImageFileName)
         .getDownloadURL();
     }
-
-    authUser &&
-      (await authUser.user?.updateProfile({
+    // signupの処理が通っていたら(authUserが存在していたら)fireStoreのユーザー情報を更新＆グローバルステートに値を格納させる
+    if (authUser) {
+      await authUser.user?.updateProfile({
         displayName: username,
         photoURL: avatarUrlPath,
-      }));
-
-    dispatch(
-      updateUserProfile({
-        displayName: username,
-        photoUrl: avatarUrlPath,
-      })
-    );
+      });
+      dispatch(
+        updateUserProfile({
+          displayName: username,
+          photoUrl: avatarUrlPath,
+        })
+      );
+    }
   };
 
   const signInGoogle = async () => {
@@ -118,6 +117,14 @@ const Auth: React.FC = () => {
       setAvatarImageFileName(makeImageUrl(e.target.files![0].name));
       // fileの選択をする時に、valueの中身が残っているとファイルを選択できないため、初期化が必要
       e.target.value = "";
+    }
+  };
+
+  const isDisabled = () => {
+    if (isLogin) {
+      return !email || password.length < 6;
+    } else {
+      return !username || !email || password.length < 6;
     }
   };
 
@@ -209,6 +216,7 @@ const Auth: React.FC = () => {
               className={classes.submit}
               startIcon={<Email />}
               onClick={isLogin ? signInEmail : signUpEmail}
+              disabled={isDisabled()}
             >
               {isLogin ? "Sign in" : "Register"}
             </Button>
