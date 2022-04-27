@@ -1,34 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import firebase from "firebase/app";
+import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import firebase from 'firebase/app'
 
-import { db } from "../firebase";
-import { selectUser } from "../features/user/userSlice";
-import { makeStyles } from "@material-ui/core/styles";
-import { Avatar } from "@material-ui/core";
-import { Message, Send } from "@material-ui/icons";
-import styles from "./Post.module.css";
+import { db } from '../firebase'
+import { selectUser } from '../features/user/userSlice'
+import { makeStyles } from '@material-ui/core/styles'
+import { Avatar } from '@material-ui/core'
+import { Message, Send } from '@material-ui/icons'
+import styles from './Post.module.css'
 
 interface Props {
-  post: PostType;
+  post: PostType
 }
 
 type PostType = {
-  id: string;
-  avatar: string;
-  image: string;
-  text: string;
-  timestamp: any;
-  username: string;
-};
+  id: string
+  avatar: string
+  image: string
+  text: string
+  timestamp: any
+  username: string
+}
 
 type Comment = {
-  id: string;
-  avatar: string;
-  text: string;
-  timestamp: any;
-  username: string;
-};
+  id: string
+  avatar: string
+  text: string
+  timestamp: any
+  username: string
+}
 
 const useStyles = makeStyles((theme) => ({
   small: {
@@ -36,31 +36,30 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(3),
     marginRight: theme.spacing(1),
   },
-}));
+}))
 
 const Post: React.FC<Props> = ({ post }) => {
-  const user = useSelector(selectUser);
-  const classes = useStyles();
+  const user = useSelector(selectUser)
+  const classes = useStyles()
 
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('')
   const [comments, setComments] = useState<Comment[]>([
     {
-      id: "",
-      avatar: "",
-      text: "",
-      username: "",
+      id: '',
+      avatar: '',
+      text: '',
+      username: '',
       timestamp: null,
     },
-  ]);
+  ])
 
   useEffect(() => {
     const unSub = db
-      .collection("posts")
+      .collection('posts')
       .doc(post.id)
-      .collection("comments")
-      .orderBy("timestamp", "desc")
+      .collection('comments')
+      .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) => {
-        snapshot.docs.map((doc) => console.log(doc));
         setComments(
           snapshot.docs.map((doc) => ({
             id: doc.id,
@@ -69,23 +68,23 @@ const Post: React.FC<Props> = ({ post }) => {
             username: doc.data().username,
             timestamp: doc.data().timestamp,
           }))
-        );
-      });
+        )
+      })
     return () => {
-      unSub();
-    };
-  }, [post.id]);
+      unSub()
+    }
+  }, [post.id])
 
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    db.collection("posts").doc(post.id).collection("comments").add({
+    e.preventDefault()
+    db.collection('posts').doc(post.id).collection('comments').add({
       avatar: user.photoUrl,
       text: comment,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       username: user.displayName,
-    });
-    setComment("");
-  };
+    })
+    setComment('')
+  }
 
   return (
     <div className={styles.post}>
@@ -148,7 +147,7 @@ const Post: React.FC<Props> = ({ post }) => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Post;
+export default Post

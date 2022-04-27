@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
-import styles from "./Feed.module.css";
-import { db } from "../firebase";
-import TweetInput from "./TweetInput";
-import Post from "./Post";
+import React, { useState, useEffect } from 'react'
+import styles from './Feed.module.css'
+import { db } from '../firebase'
+import TweetInput from './TweetInput'
+import Post from './Post'
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState([
     {
-      id: "",
-      avatar: "",
-      image: "",
-      text: "",
+      id: '',
+      avatar: '',
+      image: '',
+      text: '',
       timestamp: null,
-      username: "",
+      username: '',
     },
-  ]);
+  ])
 
   useEffect(() => {
     const unSub = db
-      .collection("posts")
-      .orderBy("timestamp", "desc")
+      .collection('posts')
+      .orderBy('timestamp', 'desc')
       .onSnapshot((snapshot) =>
         setPosts(
           snapshot.docs.map((doc) => ({
@@ -31,11 +31,11 @@ const Feed: React.FC = () => {
             username: doc.data().username,
           }))
         )
-      );
+      )
     return () => {
-      unSub();
-    };
-  }, []);
+      unSub()
+    }
+  }, [])
 
   return (
     <div className={styles.feed}>
@@ -49,7 +49,7 @@ const Feed: React.FC = () => {
         </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Feed;
+export default Feed

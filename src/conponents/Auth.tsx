@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import {
   Avatar,
   Box,
@@ -11,158 +11,158 @@ import {
   Paper,
   TextField,
   Typography,
-} from "@material-ui/core";
-import { AccountCircle, Email, Lock, Send } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
+} from '@material-ui/core'
+import { AccountCircle, Email, Lock, Send } from '@material-ui/icons'
+import { makeStyles } from '@material-ui/core/styles'
 
-import { auth, provider, storage } from "../firebase";
-import { updateUserProfile } from "../features/user/userSlice";
-import styles from "./Auth.module.css";
+import { auth, provider, storage } from '../firebase'
+import { updateUserProfile } from '../features/user/userSlice'
+import styles from './Auth.module.css'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100vh",
+    height: '100vh',
   },
   modal: {
-    outline: "none",
-    position: "absolute",
+    outline: 'none',
+    position: 'absolute',
     width: 400,
     borderRadius: 10,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     boxShadow: theme.shadows[5],
     padding: theme.spacing(10),
   },
   image: {
-    backgroundImage: "url(https://source.unsplash.com/random)",
-    backgroundRepeat: "no-repeat",
+    backgroundImage: 'url(https://source.unsplash.com/random)',
+    backgroundRepeat: 'no-repeat',
     backgroundColor:
-      theme.palette.type === "light"
+      theme.palette.type === 'light'
         ? theme.palette.grey[50]
         : theme.palette.grey[900],
-    backgroundSize: "cover",
-    backgroundPosition: "center",
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
   paper: {
     margin: theme.spacing(8, 4),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-}));
+}))
 
 function getModalStyle() {
-  const top = 50;
-  const left = 50;
+  const top = 50
+  const left = 50
 
   return {
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
-  };
+  }
 }
 
 const Auth: React.FC = () => {
-  const dispatch = useDispatch();
-  const classes = useStyles();
+  const dispatch = useDispatch()
+  const classes = useStyles()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [avatarImage, setAvatarImage] = useState<File | null>(null);
-  const [avatarImageFileName, setAvatarImageFileName] = useState("");
-  const [resetEmail, setResetEmail] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [username, setUsername] = useState('')
+  const [avatarImage, setAvatarImage] = useState<File | null>(null)
+  const [avatarImageFileName, setAvatarImageFileName] = useState('')
+  const [resetEmail, setResetEmail] = useState('')
+  const [isLogin, setIsLogin] = useState(true)
+  const [openModal, setOpenModal] = useState(false)
 
   const signInEmail = async () => {
     await auth
       .signInWithEmailAndPassword(email, password)
-      .catch((error) => alert(error.message));
-  };
+      .catch((error) => alert(error.message))
+  }
 
   const signUpEmail = async () => {
-    let avatarUrlPath = "";
+    let avatarUrlPath = ''
     const authUser = await auth
       .createUserWithEmailAndPassword(email, password)
-      .catch((error) => alert(error.message));
+      .catch((error) => alert(error.message))
     // アバター画像が選択されていたらfireStorageに画像を格納する
     if (avatarImage) {
-      await storage.ref(`avatars/${avatarImageFileName}`).put(avatarImage);
+      await storage.ref(`avatars/${avatarImageFileName}`).put(avatarImage)
       avatarUrlPath = await storage
-        .ref("avatars")
+        .ref('avatars')
         .child(avatarImageFileName)
-        .getDownloadURL();
+        .getDownloadURL()
     }
     // signupの処理が通っていたら(authUserが存在していたら)fireStoreのユーザー情報を更新＆グローバルステートに値を格納させる
     if (authUser) {
       await authUser.user?.updateProfile({
         displayName: username,
         photoURL: avatarUrlPath,
-      });
+      })
       dispatch(
         updateUserProfile({
           displayName: username,
           photoUrl: avatarUrlPath,
         })
-      );
+      )
     }
-  };
+  }
 
   const signInGoogle = async () => {
-    await auth.signInWithPopup(provider).catch((error) => alert(error.message));
-  };
+    await auth.signInWithPopup(provider).catch((error) => alert(error.message))
+  }
 
   const sendResetEmail = async (e: React.MouseEvent<HTMLElement>) => {
     await auth
       .sendPasswordResetEmail(resetEmail)
       .then(() => {
-        setOpenModal(false);
-        setResetEmail("");
+        setOpenModal(false)
+        setResetEmail('')
       })
       .catch((error) => {
-        alert(error.message);
-        setResetEmail("");
-      });
-  };
+        alert(error.message)
+        setResetEmail('')
+      })
+  }
 
   const makeImageUrl = (imageFileName: string) => {
-    const S = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    const N = 16;
+    const S = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    const N = 16
     const randomChar = Array.from(crypto.getRandomValues(new Uint32Array(N)))
       .map((n) => S[n % S.length])
-      .join("");
-    return randomChar + "_" + imageFileName;
-  };
+      .join('')
+    return randomChar + '_' + imageFileName
+  }
 
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     // e.target.files![0]で、選択した画像のデータが取得できる
     if (e.target.files![0]) {
-      setAvatarImage(e.target.files![0]);
+      setAvatarImage(e.target.files![0])
       // fireStorageに画像ファイルを格納する時のファイル名を作成してuseStateで保持する
-      setAvatarImageFileName(makeImageUrl(e.target.files![0].name));
+      setAvatarImageFileName(makeImageUrl(e.target.files![0].name))
       // fileの選択をする時に、valueの中身が残っているとファイルを選択できないため、初期化が必要
-      e.target.value = "";
+      e.target.value = ''
     }
-  };
+  }
 
   const isDisabled = () => {
     if (isLogin) {
-      return !email || password.length < 6;
+      return !email || password.length < 6
     } else {
-      return !username || !email || password.length < 6;
+      return !username || !email || password.length < 6
     }
-  };
+  }
 
   return (
     <Grid container component="main" className={classes.root}>
@@ -174,7 +174,7 @@ const Auth: React.FC = () => {
             <Lock />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {isLogin ? "Sign in" : "Register"}
+            {isLogin ? 'Sign in' : 'Register'}
           </Typography>
           <form className={classes.form} noValidate>
             {!isLogin && (
@@ -191,7 +191,7 @@ const Auth: React.FC = () => {
                   autoFocus
                   value={username}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setUsername(e.target.value);
+                    setUsername(e.target.value)
                   }}
                 />
                 <Box textAlign="center">
@@ -254,7 +254,7 @@ const Auth: React.FC = () => {
               onClick={isLogin ? signInEmail : signUpEmail}
               disabled={isDisabled()}
             >
-              {isLogin ? "Sign in" : "Register"}
+              {isLogin ? 'Sign in' : 'Register'}
             </Button>
             <Grid container>
               <Grid item xs>
@@ -270,7 +270,7 @@ const Auth: React.FC = () => {
                   className={styles.login_toggleMode}
                   onClick={() => setIsLogin(!isLogin)}
                 >
-                  {isLogin ? "Create New account" : "Back to login"}
+                  {isLogin ? 'Create New account' : 'Back to login'}
                 </span>
               </Grid>
             </Grid>
@@ -297,7 +297,7 @@ const Auth: React.FC = () => {
                   label="Reset E-mail"
                   value={resetEmail}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setResetEmail(e.target.value);
+                    setResetEmail(e.target.value)
                   }}
                 />
                 <IconButton onClick={sendResetEmail}>
@@ -309,7 +309,7 @@ const Auth: React.FC = () => {
         </div>
       </Grid>
     </Grid>
-  );
-};
+  )
+}
 
-export default Auth;
+export default Auth

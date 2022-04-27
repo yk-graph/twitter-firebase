@@ -1,15 +1,15 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { login, logout, selectUser } from "./features/user/userSlice";
-import { auth } from "./firebase";
-import styles from "./App.module.css";
-import Feed from "./conponents/Feed";
-import Auth from "./conponents/Auth";
+import { login, logout, selectUser } from './features/user/userSlice'
+import { auth } from './firebase'
+import styles from './App.module.css'
+import Feed from './conponents/Feed'
+import Auth from './conponents/Auth'
 
 const App: React.FC = () => {
-  const user = useSelector(selectUser);
-  const dispatch = useDispatch();
+  const user = useSelector(selectUser)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const unSub = auth.onAuthStateChanged((authUser) => {
@@ -20,13 +20,13 @@ const App: React.FC = () => {
             photoUrl: authUser.photoURL,
             displayName: authUser.displayName,
           })
-        );
+        )
       } else {
-        dispatch(logout());
+        dispatch(logout())
       }
-    });
-    return () => unSub();
-  }, [dispatch]);
+    })
+    return () => unSub()
+  }, [dispatch])
 
   return (
     <>
@@ -38,7 +38,7 @@ const App: React.FC = () => {
         <Auth />
       )}
     </>
-  );
-};
+  )
+}
 
 export default App
