@@ -26,6 +26,7 @@ export const userSlice = createSlice({
 
 export const { login, logout } = userSlice.actions;
 
+// コンポーネントからuseSelector(selectUser)を使ってグローバルステートの値を取得できるようにする(state.スライス名.プロパティ名)
 export const selectUser = (state: RootState) => state.user.user;
 
 export default userSlice.reducer;

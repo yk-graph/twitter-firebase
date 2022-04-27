@@ -28,7 +28,17 @@ const App: React.FC = () => {
     return () => unSub();
   }, [dispatch]);
 
-  return <>{user.uid ? <Feed /> : <Auth />}</>;
+  return (
+    <>
+      {user.uid ? (
+        <div className={styles.app}>
+          <Feed />
+        </div>
+      ) : (
+        <Auth />
+      )}
+    </>
+  );
 };
 
 export default App;
