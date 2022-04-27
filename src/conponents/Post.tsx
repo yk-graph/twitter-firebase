@@ -22,7 +22,31 @@ type PostType = {
   username: string;
 };
 
+const useStyles = makeStyles((theme) => ({
+  small: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+    marginRight: theme.spacing(1),
+  },
+}));
+
 const Post: React.FC<Props> = ({ post }) => {
+  const user = useSelector(selectUser);
+  const classes = useStyles();
+
+  const [comment, setComment] = useState("");
+
+  const newComment = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    db.collection("posts").doc(post.id).collection("comments").add({
+      avatar: user.photoUrl,
+      text: comment,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      username: user.displayName,
+    });
+    setComment("");
+  };
+
   return (
     <div className={styles.post}>
       <div className={styles.post_avatar}>
@@ -47,6 +71,29 @@ const Post: React.FC<Props> = ({ post }) => {
             <img src={post.image} alt="tweet" />
           </div>
         )}
+
+        <form onSubmit={newComment}>
+          <div className={styles.post_form}>
+            <input
+              className={styles.post_input}
+              type="text"
+              placeholder="Type new comment"
+              value={comment}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setComment(e.target.value)
+              }
+            />
+            <button
+              disabled={!comment}
+              className={
+                comment ? styles.post_button : styles.post_buttonDisable
+              }
+              type="submit"
+            >
+              <Send className={styles.post_sendIcon} />
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
