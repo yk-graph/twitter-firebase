@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import { Email, Lock } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 
 import styles from "./Auth.module.css";
@@ -57,11 +57,15 @@ const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   const signInEmail = async () => {
-    await auth.signInWithEmailAndPassword(email, password);
+    await auth
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
   };
 
   const signUpEmail = async () => {
-    await auth.createUserWithEmailAndPassword(email, password);
+    await auth
+      .createUserWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
   };
 
   const signInGoogle = async () => {
@@ -75,7 +79,7 @@ const Auth: React.FC = () => {
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <Lock />
           </Avatar>
           <Typography component="h1" variant="h5">
             {isLogin ? "Sign in" : "Register"}
@@ -112,14 +116,28 @@ const Auth: React.FC = () => {
               }
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              startIcon={<Email />}
+              onClick={isLogin ? signInEmail : signUpEmail}
             >
               {isLogin ? "Sign in" : "Register"}
             </Button>
+            <Grid container>
+              <Grid item xs>
+                <span className={styles.login_reset}>Forgot Password?</span>
+              </Grid>
+              <Grid item>
+                <span
+                  className={styles.login_toggleMode}
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? "Create New account" : "Back to login"}
+                </span>
+              </Grid>
+            </Grid>
             <Button
               fullWidth
               variant="contained"
