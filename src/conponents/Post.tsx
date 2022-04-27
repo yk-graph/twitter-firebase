@@ -22,6 +22,14 @@ type PostType = {
   username: string;
 };
 
+type Comment = {
+  id: string;
+  avatar: string;
+  text: string;
+  timestamp: any;
+  username: string;
+};
+
 const useStyles = makeStyles((theme) => ({
   small: {
     width: theme.spacing(3),
@@ -35,6 +43,38 @@ const Post: React.FC<Props> = ({ post }) => {
   const classes = useStyles();
 
   const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<Comment[]>([
+    {
+      id: "",
+      avatar: "",
+      text: "",
+      username: "",
+      timestamp: null,
+    },
+  ]);
+
+  useEffect(() => {
+    const unSub = db
+      .collection("posts")
+      .doc(post.id)
+      .collection("comments")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        snapshot.docs.map((doc) => console.log(doc));
+        setComments(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            avatar: doc.data().avatar,
+            text: doc.data().text,
+            username: doc.data().username,
+            timestamp: doc.data().timestamp,
+          }))
+        );
+      });
+    return () => {
+      unSub();
+    };
+  }, [post.id]);
 
   const newComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,6 +111,18 @@ const Post: React.FC<Props> = ({ post }) => {
             <img src={post.image} alt="tweet" />
           </div>
         )}
+
+        {comments.map((com) => (
+          <div key={com.id} className={styles.post_comment}>
+            <Avatar src={com.avatar} className={classes.small} />
+
+            <span className={styles.post_commentUser}>@{com.username}</span>
+            <span className={styles.post_commentText}>{com.text} </span>
+            <span className={styles.post_headerTime}>
+              {new Date(com.timestamp?.toDate()).toLocaleString()}
+            </span>
+          </div>
+        ))}
 
         <form onSubmit={newComment}>
           <div className={styles.post_form}>
