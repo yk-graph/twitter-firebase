@@ -1,6 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 
+type User = {
+  displayName: string;
+  photoUrl: string;
+};
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -21,10 +26,18 @@ export const userSlice = createSlice({
     logout: (state) => {
       state.user = { uid: "", photoUrl: "", displayName: "" };
     },
+    /**
+     *@description ユーザーの新規作成時に追加情報があった際、情報を追加する関数
+     *@payload {displayName: string, photoUrl: string}
+     */
+    updateUserProfile: (state, action: PayloadAction<User>) => {
+      state.user.displayName = action.payload.displayName;
+      state.user.photoUrl = action.payload.photoUrl;
+    },
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, updateUserProfile } = userSlice.actions;
 
 // コンポーネントからuseSelector(selectUser)を使ってグローバルステートの値を取得できるようにする(state.スライス名.プロパティ名)
 export const selectUser = (state: RootState) => state.user.user;
