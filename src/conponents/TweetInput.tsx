@@ -8,7 +8,7 @@ import { selectUser } from "../features/user/userSlice";
 import { auth, db, storage } from "../firebase";
 import styles from "./TweetInput.module.css";
 
-const TweetInput = () => {
+const TweetInput: React.FC = () => {
   const user = useSelector(selectUser);
 
   const [tweetImage, setTweetImage] = useState<File | null>(null);
@@ -56,7 +56,7 @@ const TweetInput = () => {
           // ⑨storageに格納した画像のpathを取得したら -> then
           await storage
             .ref("images")
-            .child(imageUrlPath)
+            .child(tweetFileName)
             .getDownloadURL()
             // ⑩画像のpathのURLを 返り値(url) として受け取る
             .then(async (url) => {
