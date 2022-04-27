@@ -2,18 +2,21 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Avatar,
+  Box,
   Button,
   CssBaseline,
   Grid,
+  IconButton,
   Paper,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { Email, Lock } from "@material-ui/icons";
+import { AccountCircle, Email, Lock } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 
-import styles from "./Auth.module.css";
 import { auth, provider, storage } from "../firebase";
+import { updateUserProfile } from "../features/user/userSlice";
+import styles from "./Auth.module.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,6 +57,10 @@ const Auth: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
+  const [avatarImageFileName, setAvatarImageFileName] = useState("");
+  const [avatarImageUrlPath, setAvatarImageUrlPath] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
   const signInEmail = async () => {
@@ -63,13 +70,53 @@ const Auth: React.FC = () => {
   };
 
   const signUpEmail = async () => {
-    await auth
+    const authUser = await auth
       .createUserWithEmailAndPassword(email, password)
       .catch((error) => alert(error.message));
+
+    if (avatarImage) {
+      await storage.ref(`avatars/${avatarImageFileName}`).put(avatarImage);
+      setAvatarImageUrlPath(
+        await storage.ref("avatars").child(avatarImageFileName).getDownloadURL()
+      );
+    }
+
+    authUser &&
+      (await authUser.user?.updateProfile({
+        displayName: username,
+        photoURL: avatarImageUrlPath,
+      }));
+
+    dispatch(
+      updateUserProfile({
+        displayName: username,
+        photoUrl: avatarImageUrlPath,
+      })
+    );
   };
 
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((error) => alert(error.message));
+  };
+
+  const makeImageUrl = (imageFileName: string) => {
+    const S = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const N = 16;
+    const randomChar = Array.from(crypto.getRandomValues(new Uint32Array(N)))
+      .map((n) => S[n % S.length])
+      .join("");
+    return randomChar + "_" + imageFileName;
+  };
+
+  const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // e.target.files![0]で、選択した画像のデータが取得できる
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0]);
+      // fireStorageに画像ファイルを格納する時のファイル名を作成してuseStateで保持する
+      setAvatarImageFileName(makeImageUrl(e.target.files![0].name));
+      // fileの選択をする時に、valueの中身が残っているとファイルを選択できないため、初期化が必要
+      e.target.value = "";
+    }
   };
 
   return (
@@ -85,6 +132,44 @@ const Auth: React.FC = () => {
             {isLogin ? "Sign in" : "Register"}
           </Typography>
           <form className={classes.form} noValidate>
+            {!isLogin && (
+              <>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={username}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setUsername(e.target.value);
+                  }}
+                />
+                <Box textAlign="center">
+                  <IconButton>
+                    <label>
+                      <AccountCircle
+                        fontSize="large"
+                        className={
+                          avatarImage
+                            ? styles.login_addIconLoaded
+                            : styles.login_addIcon
+                        }
+                      />
+                      <input
+                        className={styles.login_hiddenIcon}
+                        type="file"
+                        onChange={onChangeImageHandler}
+                      />
+                    </label>
+                  </IconButton>
+                </Box>
+              </>
+            )}
             <TextField
               variant="outlined"
               margin="normal"
