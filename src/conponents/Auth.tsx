@@ -60,7 +60,6 @@ const Auth: React.FC = () => {
   const [username, setUsername] = useState("");
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
   const [avatarImageFileName, setAvatarImageFileName] = useState("");
-  const [avatarImageUrlPath, setAvatarImageUrlPath] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
   const signInEmail = async () => {
@@ -70,27 +69,30 @@ const Auth: React.FC = () => {
   };
 
   const signUpEmail = async () => {
+    let avatarUrlPath = "";
+
     const authUser = await auth
       .createUserWithEmailAndPassword(email, password)
       .catch((error) => alert(error.message));
 
     if (avatarImage) {
       await storage.ref(`avatars/${avatarImageFileName}`).put(avatarImage);
-      setAvatarImageUrlPath(
-        await storage.ref("avatars").child(avatarImageFileName).getDownloadURL()
-      );
+      avatarUrlPath = await storage
+        .ref("avatars")
+        .child(avatarImageFileName)
+        .getDownloadURL();
     }
 
     authUser &&
       (await authUser.user?.updateProfile({
         displayName: username,
-        photoURL: avatarImageUrlPath,
+        photoURL: avatarUrlPath,
       }));
 
     dispatch(
       updateUserProfile({
         displayName: username,
-        photoUrl: avatarImageUrlPath,
+        photoUrl: avatarUrlPath,
       })
     );
   };
