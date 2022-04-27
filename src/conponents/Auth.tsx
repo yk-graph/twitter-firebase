@@ -7,11 +7,12 @@ import {
   CssBaseline,
   Grid,
   IconButton,
+  Modal,
   Paper,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { AccountCircle, Email, Lock } from "@material-ui/icons";
+import { AccountCircle, Email, Lock, Send } from "@material-ui/icons";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { auth, provider, storage } from "../firebase";
@@ -21,6 +22,15 @@ import styles from "./Auth.module.css";
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
+  },
+  modal: {
+    outline: "none",
+    position: "absolute",
+    width: 400,
+    borderRadius: 10,
+    backgroundColor: "white",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(10),
   },
   image: {
     backgroundImage: "url(https://source.unsplash.com/random)",
@@ -51,6 +61,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function getModalStyle() {
+  const top = 50;
+  const left = 50;
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+}
+
 const Auth: React.FC = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -60,7 +81,9 @@ const Auth: React.FC = () => {
   const [username, setUsername] = useState("");
   const [avatarImage, setAvatarImage] = useState<File | null>(null);
   const [avatarImageFileName, setAvatarImageFileName] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
 
   const signInEmail = async () => {
     await auth
@@ -98,6 +121,19 @@ const Auth: React.FC = () => {
 
   const signInGoogle = async () => {
     await auth.signInWithPopup(provider).catch((error) => alert(error.message));
+  };
+
+  const sendResetEmail = async (e: React.MouseEvent<HTMLElement>) => {
+    await auth
+      .sendPasswordResetEmail(resetEmail)
+      .then(() => {
+        setOpenModal(false);
+        setResetEmail("");
+      })
+      .catch((error) => {
+        alert(error.message);
+        setResetEmail("");
+      });
   };
 
   const makeImageUrl = (imageFileName: string) => {
@@ -222,7 +258,12 @@ const Auth: React.FC = () => {
             </Button>
             <Grid container>
               <Grid item xs>
-                <span className={styles.login_reset}>Forgot Password?</span>
+                <span
+                  onClick={() => setOpenModal(true)}
+                  className={styles.login_reset}
+                >
+                  Forgot Password?
+                </span>
               </Grid>
               <Grid item>
                 <span
@@ -243,6 +284,28 @@ const Auth: React.FC = () => {
               SignIn with Google
             </Button>
           </form>
+
+          <Modal open={openModal} onClose={() => setOpenModal(false)}>
+            <div style={getModalStyle()} className={classes.modal}>
+              <div className={styles.login_modal}>
+                <TextField
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  type="email"
+                  name="email"
+                  label="Reset E-mail"
+                  value={resetEmail}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setResetEmail(e.target.value);
+                  }}
+                />
+                <IconButton onClick={sendResetEmail}>
+                  <Send />
+                </IconButton>
+              </div>
+            </div>
+          </Modal>
         </div>
       </Grid>
     </Grid>
