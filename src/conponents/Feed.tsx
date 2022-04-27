@@ -44,7 +44,7 @@ const Feed: React.FC = () => {
       {posts[0]?.id && (
         <>
           {posts.map((post) => (
-            <div key={post.id}>{post.text}</div>
+            <Post key={post.id} post={post} />
           ))}
         </>
       )}
