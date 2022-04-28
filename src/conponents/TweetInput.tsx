@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState } from 'react'
 import firebase from 'firebase/app'
 import { useSelector } from 'react-redux'

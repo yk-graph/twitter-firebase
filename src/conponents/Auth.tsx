@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import {
@@ -123,7 +124,7 @@ const Auth: React.FC = () => {
     await auth.signInWithPopup(provider).catch((error) => alert(error.message))
   }
 
-  const sendResetEmail = async (e: React.MouseEvent<HTMLElement>) => {
+  const sendResetEmail = async () => {
     await auth
       .sendPasswordResetEmail(resetEmail)
       .then(() => {
